@@ -2,6 +2,7 @@ package io.github.cosineaa.tracker.data
 
 data class TeamInfo(
     val teamName: String,
+    val teamShortName: String,
     val teamImage: String,
 
     val gameRate: String,

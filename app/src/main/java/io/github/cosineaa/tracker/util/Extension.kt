@@ -40,6 +40,39 @@ fun String.replaceTeam(): String {
         .replace("클리블랜드 캐벌리어스", "Cleveland Cavaliers")
         .replace("밀워키 벅스", "Milwaukee Bucks")
 }
+fun String.getShortTeam(): String {
+    if (this == "올랜도 매직") return "ORL"
+    if (this == "휴스턴 로키츠") return "HOU"
+    if (this == "LA 레이커스") return "LAL"
+    if (this == "샬럿 호네츠") return "CHA"
+    if (this == "디트로이트 피스톤즈") return "DET"
+    if (this == "새크라멘토 킹스") return "SAC"
+    if (this == "브루클린 네츠") return "BKN"
+    if (this == "마이애미 히트") return "MIA"
+    if (this == "골든스테이트 워리어스") return "GSW"
+    if (this == "오클라호마시티 썬더") return "OKC"
+    if (this == "워싱턴 위저즈") return "WAS"
+    if (this == "필라델피아 세븐티식서스") return "PHI"
+    if (this == "샌안토니오 스퍼스") return "SAS"
+    if (this == "미네소타 팀버울브스") return "MIN"
+    if (this == "시카고 불스") return "CHI"
+    if (this == "뉴욕 닉스") return "NYK"
+    if (this == "인디애나 페이서스") return "IND"
+    if (this == "뉴올리언스 펠리컨스") return "NOP"
+    if (this == "토론토 랩터스") return "TOR"
+    if (this == "LA 클리퍼스") return "LAC"
+    if (this == "멤피스 그리즐리스") return "MEM"
+    if (this == "댈러스 매버릭스") return "DAL"
+    if (this == "보스턴 셀틱스") return "BOS"
+    if (this == "애틀랜타 호크스") return "ATL"
+    if (this == "피닉스 선즈") return "PHX"
+    if (this == "포틀랜드 트레일블레이저스") return "POR"
+    if (this == "덴버 너기츠") return "DEN"
+    if (this == "유타 재즈") return "UTA"
+    if (this == "클리블랜드 캐벌리어스") return "CLE"
+    if (this == "밀워키 벅스") return "MIL"
+    return "None"
+}
 fun String.replaceConference(): String {
     return this.replace("컨퍼런스", "")
 }

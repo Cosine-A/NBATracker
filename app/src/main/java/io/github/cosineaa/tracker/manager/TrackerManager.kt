@@ -3,10 +3,7 @@ package io.github.cosineaa.tracker.manager
 import io.github.cosineaa.tracker.data.PlayerInfo
 import io.github.cosineaa.tracker.data.TeamInfo
 import io.github.cosineaa.tracker.service.TrackerService
-import io.github.cosineaa.tracker.util.replaceConference
-import io.github.cosineaa.tracker.util.replaceTeam
-import io.github.cosineaa.tracker.util.toCentimeter
-import io.github.cosineaa.tracker.util.toKilogram
+import io.github.cosineaa.tracker.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Runnable
 import org.json.simple.JSONArray
@@ -205,6 +202,7 @@ class TrackerManager : TrackerService {
 
         return TeamInfo(
             teamName.toString().replaceTeam(),
+            teamName.toString().getShortTeam(),
             teamImage.toString(),
             gameRate,
             gameAll.toString(),
