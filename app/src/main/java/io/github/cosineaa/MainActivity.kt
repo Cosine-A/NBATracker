@@ -120,7 +120,7 @@ fun ConferenceView() {
                 text = "순위", fontFamily = esamanru, fontWeight = FontWeight.Medium)
             Text(modifier = Modifier.fillMaxWidth(0.11f),
                 text = "   ", fontFamily = esamanru, fontWeight = FontWeight.Medium)
-            Text(modifier = Modifier.fillMaxWidth(0.13f),
+            Text(modifier = Modifier.fillMaxWidth(0.14f),
                 text = "팀", fontFamily = esamanru, fontWeight = FontWeight.Medium)
             Text(modifier = Modifier.fillMaxWidth(0.11f),
                 text = "경기", fontFamily = esamanru, fontWeight = FontWeight.Medium)
