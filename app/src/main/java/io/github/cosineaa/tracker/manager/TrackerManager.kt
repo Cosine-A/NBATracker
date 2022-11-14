@@ -4,8 +4,6 @@ import io.github.cosineaa.tracker.data.PlayerInfo
 import io.github.cosineaa.tracker.data.TeamInfo
 import io.github.cosineaa.tracker.service.TrackerService
 import io.github.cosineaa.tracker.util.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Runnable
 import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
@@ -65,8 +63,8 @@ class TrackerManager : TrackerService {
         val playerList = mutableListOf<PlayerInfo>()
         for (loop in 0 until json.size) {
             val playerInfo = json[loop] as JSONObject
-            val playerTeamId = playerInfo["TEAM_ID"].toString()
-            if (playerTeamId == searchTeam) {
+            val playerTeamName = playerInfo["TEAM_ABBREVIATION"].toString()
+            if (playerTeamName == searchTeam) {
                 playerList.add(getPlayerData(playerInfo))
             }
         }
@@ -180,7 +178,10 @@ class TrackerManager : TrackerService {
     }
 
     private fun getTeamData(info: JSONObject): TeamInfo {
-        val teamName = info["nameMain"] ?: "None"
+        val teamKoreanName = info["nameMain"] ?: "None"
+        val teamEnglishName = teamKoreanName.toString().replaceTeamToEnglish()
+        val teamKoreanShortName = info["shortName"] ?: "None"
+        val teamEnglishShortName = teamKoreanName.toString().getShortTeam()
         val teamImage = info["imageUrl"] ?: "None"
 
         val rank = info["rank"] as JSONObject
@@ -196,13 +197,21 @@ class TrackerManager : TrackerService {
         val awayWin = rank["awayWin"] ?: "None"
         val awayLose = rank["awayLoss"] ?: "None"
 
+        val stat = info["stat"] as JSONObject
+        val ppg = stat["ptsAvg"] ?: "None"
+        val oppg = stat["lostPtsAvg"] ?: "None"
+        val rpg = stat["rebAvg"] ?: "None"
+        val apg = stat["astAvg"] ?: "None"
+
         val league = info["subLeague1depth"] as JSONObject
         val conference = league["name"] ?: "None"
         val conferenceRank = rank["conferenceRank"] ?: "None"
 
         return TeamInfo(
-            teamName.toString().replaceTeam(),
-            teamName.toString().getShortTeam(),
+            teamKoreanName.toString(),
+            teamEnglishName,
+            teamKoreanShortName.toString(),
+            teamEnglishShortName,
             teamImage.toString(),
             gameRate,
             gameAll.toString(),
@@ -213,6 +222,10 @@ class TrackerManager : TrackerService {
             homeLose.toString(),
             awayWin.toString(),
             awayLose.toString(),
+            ppg.toString(),
+            oppg.toString(),
+            rpg.toString(),
+            apg.toString(),
             conference.toString().replaceConference(),
             conferenceRank.toString()
         )
