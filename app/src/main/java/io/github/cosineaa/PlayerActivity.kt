@@ -145,8 +145,8 @@ fun PlayerStat() {
 fun PlayerStatInfo(width: Float, type: String, value: String, color: Color) {
     Card(
         modifier = Modifier
-            .padding(5.size())
-            .fillMaxWidth(width),
+            .fillMaxWidth(width)
+            .padding(5.size()),
         shape = RoundedCornerShape(10.size()),
         elevation = 3.size()
     ) {

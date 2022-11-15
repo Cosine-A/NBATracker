@@ -9,29 +9,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.google.accompanist.pager.*
 import io.github.cosineaa.ConferenceActivity.Companion.conferenceInstance
-import io.github.cosineaa.MainActivity.Companion.esamanru
-import io.github.cosineaa.MainActivity.Companion.playerJson
-import io.github.cosineaa.MainActivity.Companion.tracker
-import io.github.cosineaa.tracker.data.PlayerInfo
+import io.github.cosineaa.MainActivity.Companion.allTeamList
 import io.github.cosineaa.tracker.data.TeamInfo
-import io.github.cosineaa.util.*
-
-private lateinit var allInfo: ArrayList<TeamInfo>
-private lateinit var teamInfo: TeamInfo
-private var color = Color.Black
+import io.github.cosineaa.util.size
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class ConferenceActivity : ComponentActivity() {
 
@@ -40,135 +32,64 @@ class ConferenceActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        conferenceInstance = this
         super.onCreate(savedInstanceState)
 
-        allInfo = intent.getSerializableExtra("AllTeam") as ArrayList<TeamInfo>
-        teamInfo = intent.getSerializableExtra("TeamInfo") as TeamInfo
+        conferenceInstance = this
 
         setContent {
-            TeamView()
+            ConferenceView()
         }
     }
 }
 
 @Composable
-fun TeamView() {
+fun ConferenceTopAppBar() {
+    TopAppBar(
+        title = { Text(text = "컨퍼런스", color = Color.White, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Bold) },
+        backgroundColor = Color.Black
+    )
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun ConferenceView() {
+    val pageState = rememberPagerState()
+    val scope = rememberCoroutineScope()
+
     Column {
-        TeamStatCard()
-        TeamPlayerCard()
+        ConferenceTopAppBar()
+        SelectConference(pageState, scope)
+        ConferenceStatTypeGuide()
+        ScrollConferenceTeam(pageState)
     }
 }
+
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TeamStatCard() {
-    Card {
-        Column(verticalArrangement = Arrangement.SpaceBetween) {
-            TeamImage()
-            TeamStat()
-        }
-    }
-}
-@Composable
-fun TeamImage() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth().background(color)
+fun SelectConference(pageState: PagerState, scope: CoroutineScope) {
+    TabRow(
+        selectedTabIndex = pageState.currentPage,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pageState, tabPositions)) },
+        backgroundColor = Color.Black,
+        contentColor = Color.Yellow
     ) {
-        AsyncImage(modifier = Modifier.size(120.size()),
-            model = teamInfo.teamImage, contentDescription = teamInfo.teamKoreanShortName)
-        Column(
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.Start
-        ) {
-            val size = auto(teamInfo.teamKoreanName)
-            Text(text = teamInfo.teamKoreanName, color = Color.White,
-                fontFamily = esamanru, fontWeight = FontWeight.Bold, fontSize = size)
-
-            Text(text = teamInfo.teamEnglishName, color = Color.White,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 17.sp)
-
-            Text(text = "", color = Color.White,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 10.sp)
-
-            Text(text = "${teamInfo.gameWin}승 ${teamInfo.gameLose}패", color = Color.White,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-
-            Text(text = "${teamInfo.conference}컨퍼런스 ${teamInfo.conferenceRank}등", color = Color.White,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-        }
-    }
-}
-@Composable
-fun TeamStat() {
-    Column(
-        modifier = Modifier.fillMaxWidth().background(color),
-    ) {
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            val ppgStat = teamInfo.ppg.getStat()
-            val ppgRank = allInfo.getPointsPerGameRank(teamInfo.teamKoreanShortName)
-            TeamStatInfo(width = 0.5f, statName = "득점", rank = ppgRank, stat = ppgStat)
-
-            val oppgStat = teamInfo.oppg.getStat()
-            val oppgRank = allInfo.getOpponentPointsPerGameRank(teamInfo.teamKoreanShortName)
-            TeamStatInfo(width = 1f, statName = "실점", rank = oppgRank, stat = oppgStat)
-        }
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            val reboundStat = teamInfo.rpg.getStat()
-            val reboundRank = allInfo.getReboundsPerGameRank(teamInfo.teamKoreanShortName)
-            TeamStatInfo(width = 0.5f, statName = "리바운드", rank = reboundRank, stat = reboundStat)
-
-            val assistStat = teamInfo.apg.getStat()
-            val assistRank = allInfo.getAssistsPerGameRank(teamInfo.teamKoreanShortName)
-            TeamStatInfo(width = 1f, statName = "어시스트", rank = assistRank, stat = assistStat)
-        }
-    }
-}
-@Composable
-fun TeamStatInfo(width: Float, statName: String, rank: String, stat: String) {
-    Card(
-        modifier = Modifier
-            .padding(5.size())
-            .fillMaxWidth(width),
-        shape = RoundedCornerShape(10.size()),
-        elevation = 5.size()
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = statName, textAlign = TextAlign.Center, color = Color.Black,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 16.sp
-            )
-
-            Text(
-                text = "${rank}등", textAlign = TextAlign.Center, color = Color.Black,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 23.sp
-            )
-
-            Text(
-                text = stat, textAlign = TextAlign.Center, color = Color.Black,
-                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 16.sp
+        MainActivity.conferencePages.forEachIndexed { index, title ->
+            Tab(
+                text = { Text(text = title, color = Color.White, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium) },
+                selected = pageState.currentPage == index,
+                onClick = {
+                    scope.launch {
+                        pageState.scrollToPage(index)
+                    }
+                }
             )
         }
     }
 }
+
 @Composable
-fun TeamPlayerCard() {
-    TeamPlayerGuide()
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        val teamPlayers = tracker.getPlayerFromTeam(playerJson, teamInfo.teamEnglishShortName)
-        itemsIndexed(teamPlayers) { _, item -> TeamPlayer(item) }
-    }
-}
-@Composable
-fun TeamPlayerGuide() {
+fun ConferenceStatTypeGuide() {
     Row(
         modifier = Modifier
             .background(Color.White)
@@ -177,43 +98,87 @@ fun TeamPlayerGuide() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly)
     {
-        Text(modifier = Modifier.fillMaxWidth(0.57f).padding(start = 10.size()),
-            text = "선수", fontFamily = esamanru, fontWeight = FontWeight.Medium)
-
-        Text(modifier = Modifier.fillMaxWidth(0.4f),
-            text = "등번호", fontFamily = esamanru, fontWeight = FontWeight.Medium)
-
-        Text(modifier = Modifier.fillMaxWidth(1f),
-            text = "포지션", fontFamily = esamanru, fontWeight = FontWeight.Medium)
+        Text(
+            modifier = Modifier.fillMaxWidth(0.07f),
+            text = "순위", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.05f),
+            text = "   ", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.25f),
+            text = "팀", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.11f),
+            text = "경기", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.07f),
+            text = "승", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.08f),
+            text = "패", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.18f),
+            text = "승률", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
+        Text(modifier = Modifier.fillMaxWidth(0.2f),
+            text = "연속", fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Medium)
     }
 }
+
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TeamPlayer(info: PlayerInfo) {
+fun ScrollConferenceTeam(pageState: PagerState) {
+    HorizontalPager(count = MainActivity.conferencePages.size, state = pageState) { page ->
+        LazyColumn {
+            when (page) {
+                0 -> itemsIndexed(MainActivity.allTeamList) { index, item -> ConferenceTeam(index, item) }
+                1 -> itemsIndexed(MainActivity.eastTeamList) { index, item -> ConferenceTeam(index, item) }
+                2 -> itemsIndexed(MainActivity.westTeamList) { index, item -> ConferenceTeam(index, item) }
+            }
+        }
+    }
+}
+
+@Composable
+fun ConferenceTeam(order: Int, info: TeamInfo) {
     Card(
         modifier = Modifier
-            .padding(5.size())
             .fillMaxWidth()
             .height(50.size())
+            .padding(2.size())
             .clickable {
-                val intent = Intent(conferenceInstance, PlayerActivity::class.java)
-                intent.putExtra("PlayerInfo", info)
-                intent.putExtra("TeamImage", teamInfo.teamImage)
+                val intent = Intent(conferenceInstance, TeamActivity::class.java)
+                intent.putExtra("TeamInfo", info)
                 conferenceInstance.startActivity(intent)
             },
         backgroundColor = Color.White,
-        contentColor = Color.Black,
-        elevation = 2.dp)
+        contentColor = Color.Black)
     {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Text(modifier = Modifier.fillMaxWidth(0.6f).padding(start = 10.size()),
-                text = info.playerName, fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-            Text(modifier = Modifier.fillMaxWidth(0.4f),
-                text = info.jerseyNumber, fontFamily = esamanru, fontWeight = FontWeight.Light)
-            Text(modifier = Modifier.fillMaxWidth(1f),
-                text = info.position, fontFamily = esamanru, fontWeight = FontWeight.Light)
+            Text(modifier = Modifier
+                .fillMaxWidth(0.08f)
+                .padding(start = 10.size()),
+                text = String.format("%02d", order + 1), fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
+
+            AsyncImage(modifier = Modifier
+                .fillMaxWidth(0.14f)
+                .size(40.size(), 40.size()),
+                model = info.teamImage, contentDescription = info.teamKoreanShortName)
+            // LoadConferenceTeamImage(teamShortName = info.teamShortName)
+
+            Text(modifier = Modifier.fillMaxWidth(0.36f),
+                text = info.teamKoreanShortName, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
+
+            Text(modifier = Modifier.fillMaxWidth(0.2f),
+                text = info.gameAll, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
+
+            Text(modifier = Modifier.fillMaxWidth(0.2f),
+                text = info.gameWin, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
+
+            Text(modifier = Modifier.fillMaxWidth(0.2f),
+                text = info.gameLose, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
+
+            Text(modifier = Modifier.fillMaxWidth(0.6f),
+                text = info.gameRate, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
+
+            Text(modifier = Modifier.fillMaxWidth(0.65f),
+                text = info.gameContinuity, fontFamily = MainActivity.esamanru, fontWeight = FontWeight.Light)
         }
     }
 }

@@ -32,6 +32,12 @@
             android:name=".ConferenceActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".TeamActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PlayerListActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".PlayerActivity"
             android:screenOrientation="portrait" />
     </application>
