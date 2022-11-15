@@ -29,4 +29,6 @@ interface TrackerService {
     fun getConferenceRank(json: JSONArray, reversed: Boolean): List<TeamInfo>
 
     fun getAllConferenceRank(conference1: JSONArray, conference2: JSONArray, reversed: Boolean): List<TeamInfo>
+
+    fun getImageFromTeam(conference1: JSONArray, conference2: JSONArray, searchTeam: String): String
 }

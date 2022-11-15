@@ -94,7 +94,7 @@ fun MainButton(height: Float, value: String, select: Boolean) {
             .clickable {
                 val intent: Intent
                 if (select) { // 선수
-                    intent = Intent(mainInstance, ConferenceActivity::class.java)
+                    intent = Intent(mainInstance, PlayerListActivity::class.java)
                     mainInstance.startActivity(intent)
                 } else { // 컨퍼런스
                     intent = Intent(mainInstance, ConferenceActivity::class.java)

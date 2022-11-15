@@ -179,6 +179,17 @@ class TrackerManager : TrackerService {
         return if (reversed) rankList.reversed() else rankList
     }
 
+    override fun getImageFromTeam(conference1: JSONArray, conference2: JSONArray, searchTeam: String): String {
+        val rank = mutableListOf<TeamInfo>().apply {
+            addAll(getConferenceRank(conference1, false))
+            addAll(getConferenceRank(conference2, false))
+        }
+        rank.forEach {
+            if (it.teamEnglishName == searchTeam) return it.teamImage
+        }
+        return "None"
+    }
+
     private fun getTeamData(info: JSONObject): TeamInfo {
         val teamKoreanName = info["nameMain"] ?: "None"
         val teamEnglishName = teamKoreanName.toString().getEnglishTeamName()
