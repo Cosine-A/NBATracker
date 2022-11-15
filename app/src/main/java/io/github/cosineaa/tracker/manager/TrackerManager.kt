@@ -108,8 +108,9 @@ class TrackerManager : TrackerService {
         val college = info["COLLEGE"] ?: "None"
 
         val teamId = info["TEAM_ID"] ?: "None"
-        val teamName = "${info["TEAM_CITY"] ?: "None"} ${info["TEAM_NAME"] ?: "None"}"
-        val abbreviation = info["TEAM_ABBREVIATION"] ?: "None"
+        val teamEnglishName = "${info["TEAM_CITY"] ?: "None"} ${info["TEAM_NAME"] ?: "None"}"
+        val teamKoreanName = teamEnglishName.getKoreanTeamName()
+        val teamEnglishShortName = info["TEAM_ABBREVIATION"] ?: "None"
 
         return PlayerInfo(
             playerId,
@@ -129,8 +130,9 @@ class TrackerManager : TrackerService {
             country.toString(),
             college.toString(),
             teamId.toString(),
-            teamName,
-            abbreviation.toString()
+            teamKoreanName,
+            teamEnglishName,
+            teamEnglishShortName.toString()
         )
     }
     private fun getPosition(position: String): String {
@@ -179,9 +181,9 @@ class TrackerManager : TrackerService {
 
     private fun getTeamData(info: JSONObject): TeamInfo {
         val teamKoreanName = info["nameMain"] ?: "None"
-        val teamEnglishName = teamKoreanName.toString().replaceTeamToEnglish()
+        val teamEnglishName = teamKoreanName.toString().getEnglishTeamName()
         val teamKoreanShortName = info["shortName"] ?: "None"
-        val teamEnglishShortName = teamKoreanName.toString().getShortTeam()
+        val teamEnglishShortName = teamKoreanName.toString().getEnglishShortTeamName()
         val teamImage = info["imageUrl"] ?: "None"
 
         val rank = info["rank"] as JSONObject

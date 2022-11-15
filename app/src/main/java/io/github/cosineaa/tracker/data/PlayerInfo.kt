@@ -24,8 +24,9 @@ data class PlayerInfo(
     val college: String,
 
     val teamId: String,
-    val teamName: String,
-    val abbreviation: String
-) {
+    val teamKoreanName: String,
+    val teamEnglishName: String,
+    val teamEnglishShortName: String
+) : java.io.Serializable {
 
 }

@@ -1,6 +1,8 @@
 package io.github.cosineaa.util
 
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import io.github.cosineaa.MainActivity.Companion.dpi
 import io.github.cosineaa.tracker.data.TeamInfo
 import kotlin.math.round
@@ -32,6 +34,10 @@ fun Int.size(): Dp {
     else {
         Dp(round((size * 1.333).toFloat()))
     }
+}
+
+fun auto(name: String): TextUnit {
+    return if (name.contains("포틀랜드")) 20.sp else 24.sp
 }
 
 fun List<TeamInfo>.getPointsPerGameRank(team: String): String {

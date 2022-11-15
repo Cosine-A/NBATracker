@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import io.github.cosineaa.ConferenceActivity.Companion.conferenceInstance
 import io.github.cosineaa.MainActivity.Companion.esamanru
 import io.github.cosineaa.MainActivity.Companion.playerJson
 import io.github.cosineaa.MainActivity.Companion.tracker
@@ -30,17 +31,20 @@ import io.github.cosineaa.util.*
 
 private lateinit var allInfo: ArrayList<TeamInfo>
 private lateinit var teamInfo: TeamInfo
+private var color = Color.Black
 
 class ConferenceActivity : ComponentActivity() {
 
+    companion object {
+        lateinit var conferenceInstance: ConferenceActivity
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        conferenceInstance = this
         super.onCreate(savedInstanceState)
 
         allInfo = intent.getSerializableExtra("AllTeam") as ArrayList<TeamInfo>
         teamInfo = intent.getSerializableExtra("TeamInfo") as TeamInfo
-
-        println("순위 " + allInfo.getPointsPerGameRank(teamInfo.teamKoreanShortName))
-        println("값 " + teamInfo.ppg)
 
         setContent {
             TeamView()
@@ -57,11 +61,7 @@ fun TeamView() {
 }
 @Composable
 fun TeamStatCard() {
-    Card(
-        shape = RoundedCornerShape(15.size()),
-        modifier = Modifier.padding(5.size()),
-        elevation = 10.size()
-    ) {
+    Card {
         Column(verticalArrangement = Arrangement.SpaceBetween) {
             TeamImage()
             TeamStat()
@@ -73,27 +73,36 @@ fun TeamImage() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(color)
     ) {
-        AsyncImage(modifier = Modifier.size(120.size()),//.background(Color.Blue),
+        AsyncImage(modifier = Modifier.size(120.size()),
             model = teamInfo.teamImage, contentDescription = teamInfo.teamKoreanShortName)
         Column(
-            //modifier = Modifier.background(Color.Yellow),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = teamInfo.teamKoreanName, fontFamily = esamanru, fontWeight = FontWeight.Bold, fontSize = 23.sp)
-            Text(text = teamInfo.teamEnglishName, fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 18.sp)
-            Text(text = "", fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 10.sp)
-            Text(text = "${teamInfo.gameWin}승 ${teamInfo.gameLose}패", fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-            Text(text = "${teamInfo.conference}컨퍼런스 ${teamInfo.conferenceRank}등", fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+            val size = auto(teamInfo.teamKoreanName)
+            Text(text = teamInfo.teamKoreanName, color = Color.White,
+                fontFamily = esamanru, fontWeight = FontWeight.Bold, fontSize = size)
+
+            Text(text = teamInfo.teamEnglishName, color = Color.White,
+                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 17.sp)
+
+            Text(text = "", color = Color.White,
+                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 10.sp)
+
+            Text(text = "${teamInfo.gameWin}승 ${teamInfo.gameLose}패", color = Color.White,
+                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+
+            Text(text = "${teamInfo.conference}컨퍼런스 ${teamInfo.conferenceRank}등", color = Color.White,
+                fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 15.sp)
         }
     }
 }
 @Composable
 fun TeamStat() {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(color),
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             val ppgStat = teamInfo.ppg.getStat()
@@ -129,15 +138,17 @@ fun TeamStatInfo(width: Float, statName: String, rank: String, stat: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = statName, textAlign = TextAlign.Center,
+                text = statName, textAlign = TextAlign.Center, color = Color.Black,
                 fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 16.sp
             )
+
             Text(
-                text = "${rank}등", textAlign = TextAlign.Center,
+                text = "${rank}등", textAlign = TextAlign.Center, color = Color.Black,
                 fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 23.sp
             )
+
             Text(
-                text = stat, textAlign = TextAlign.Center,
+                text = stat, textAlign = TextAlign.Center, color = Color.Black,
                 fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 16.sp
             )
         }
@@ -145,46 +156,64 @@ fun TeamStatInfo(width: Float, statName: String, rank: String, stat: String) {
 }
 @Composable
 fun TeamPlayerCard() {
+    TeamPlayerGuide()
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            //.background(color = Color.Red)
     ) {
         val teamPlayers = tracker.getPlayerFromTeam(playerJson, teamInfo.teamEnglishShortName)
         itemsIndexed(teamPlayers) { _, item -> TeamPlayer(item) }
     }
 }
 @Composable
+fun TeamPlayerGuide() {
+    Row(
+        modifier = Modifier
+            .background(Color.White)
+            .fillMaxWidth()
+            .height(30.size()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly)
+    {
+        Text(modifier = Modifier.fillMaxWidth(0.57f).padding(start = 10.size()),
+            text = "선수", fontFamily = esamanru, fontWeight = FontWeight.Medium)
+
+        Text(modifier = Modifier.fillMaxWidth(0.4f),
+            text = "등번호", fontFamily = esamanru, fontWeight = FontWeight.Medium)
+
+        Text(modifier = Modifier.fillMaxWidth(1f),
+            text = "포지션", fontFamily = esamanru, fontWeight = FontWeight.Medium)
+    }
+}
+@Composable
 fun TeamPlayer(info: PlayerInfo) {
     Card(
         modifier = Modifier
-            .padding(2.size())
+            .padding(5.size())
             .fillMaxWidth()
-            .height(50.size()),
+            .height(50.size())
+            .clickable {
+                val intent = Intent(conferenceInstance, PlayerActivity::class.java)
+                intent.putExtra("PlayerInfo", info)
+                intent.putExtra("TeamImage", teamInfo.teamImage)
+                conferenceInstance.startActivity(intent)
+            },
         backgroundColor = Color.White,
         contentColor = Color.Black,
-        elevation = 5.dp)
+        elevation = 2.dp)
     {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Text(modifier = Modifier.fillMaxWidth(0.36f),
-                text = info.playerName, fontFamily = esamanru, fontWeight = FontWeight.Light)
-
-            Text(modifier = Modifier.fillMaxWidth(0.2f),
-                text = info.jerseyNumber, fontFamily = esamanru, fontWeight = FontWeight.Light)
-
+            Text(modifier = Modifier.fillMaxWidth(0.6f).padding(start = 10.size()),
+                text = info.playerName, fontFamily = esamanru, fontWeight = FontWeight.Medium, fontSize = 14.sp)
             Text(modifier = Modifier.fillMaxWidth(0.4f),
+                text = info.jerseyNumber, fontFamily = esamanru, fontWeight = FontWeight.Light)
+            Text(modifier = Modifier.fillMaxWidth(1f),
                 text = info.position, fontFamily = esamanru, fontWeight = FontWeight.Light)
-
-            Text(modifier = Modifier.fillMaxWidth(0.5f),
-                text = info.height, fontFamily = esamanru, fontWeight = FontWeight.Light)
-
-            Text(modifier = Modifier.fillMaxWidth(0.6f),
-                text = info.weight, fontFamily = esamanru, fontWeight = FontWeight.Light)
         }
     }
 }
